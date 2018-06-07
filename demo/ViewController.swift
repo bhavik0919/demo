@@ -15,8 +15,8 @@ class ViewController: UIViewController,UITableViewDelegate,UITableViewDataSource
     let kHeaderSectionTag: Int = 6900;
     
     var userDic : [String : AnyObject] = [:]
-    var ClassArr = NSMutableArray()
-    var ShiftArr = NSMutableArray()
+    var CategoryArray = NSMutableArray()
+    var SongArray = NSMutableArray()
     
     var expandedSectionHeaderNumber: Int = -1
     var expandedSectionHeader: UITableViewHeaderFooterView!
@@ -55,13 +55,21 @@ class ViewController: UIViewController,UITableViewDelegate,UITableViewDataSource
                     let result = data?.object(forKey: "results") as! NSArray
                     if(result.count > 0)
                     {
-                        if(demoHelper.sharedInstance.InsertData(data: result))
+                        
+                        if(demoHelper.sharedInstance.deleteolddata())
                         {
-                            print("success")
+                            if(demoHelper.sharedInstance.InsertData(data: result))
+                            {
+                                print("success insert")
+                            }
+                            else
+                            {
+                                print("failer insert")
+                            }
                         }
                         else
                         {
-                            print("fail")
+                            print("fail delete")
                         }
                     }
                     

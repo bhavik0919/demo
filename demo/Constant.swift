@@ -20,6 +20,7 @@ struct ApiMethodName {
 }
 
 struct DataDic  {
+    static let Id = "Id";
     static let artistId = "artistId";
     static let artistName = "artistName";
     static let artistViewUrl = "artistViewUrl";
@@ -31,11 +32,9 @@ struct DataDic  {
     static let collectionId = "collectionId";
     static let collectionName = "collectionName";
     static let collectionViewUrl = "collectionViewUrl";
-    static let isStreamable = "isStreamable";
     static let previewUrl = "previewUrl";
     static let trackId = "trackId";
     static let trackName = "trackName";
-    static let trackTimeMillis = "trackTimeMillis";
     static let trackViewUrl = "trackViewUrl";
 }
 

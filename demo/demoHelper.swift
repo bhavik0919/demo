@@ -2,58 +2,115 @@
 import UIKit
 
 class demoHelper: NSObject {
-    var databasename = "database.sqlite"
+   
+    let databaseFileName = "database.sqlite"
+    
+    var pathToDatabase: String!
+    
+    var database: FMDatabase!
+   
+    
     static let sharedInstance: demoHelper = {
         let instance = demoHelper()
         return instance
     }()
  
+    override init() {
+        super.init()
+        
+        let documentsDirectory = (NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)[0] as NSString) as String
+        pathToDatabase = documentsDirectory.appending("/\(databaseFileName)")
+    }
+    
+    func createDatabase() -> Bool {
+        var created = false
+        
+        if !FileManager.default.fileExists(atPath: pathToDatabase) {
+            database = FMDatabase(path: pathToDatabase!)
+            
+            if database != nil {
+                // Open the database.
+                if database.open() {
+                    let createMoviesTableQuery = "create table songs (\(DataDic.Id) integer primary key autoincrement not null, \(DataDic.artistId) text, \(DataDic.artistName) text,\(DataDic.artistViewUrl) text,\(DataDic.artworkUrl100) text,\(DataDic.artworkUrl30) text,\(DataDic.artworkUrl60) text,\(DataDic.collectionCensoredName) text,\(DataDic.collectionExplicitness) text,\(DataDic.collectionId) text,\(DataDic.collectionName) text,\(DataDic.collectionViewUrl) text,\(DataDic.previewUrl) text,\(DataDic.trackId) text,\(DataDic.trackName) text,\(DataDic.trackViewUrl) text)"
+                    
+                    do {
+                        try database.executeUpdate(createMoviesTableQuery, withArgumentsIn: nil)
+                        created = true
+                    }
+                    catch {
+                        print("Could not create table.")
+                        print(error.localizedDescription)
+                    }
+                    
+                    database.close()
+                }
+                else {
+                    print("Could not open the database.")
+                }
+            }
+        }
+        
+        return created
+    }
+    
+    
+    func openDatabase() -> Bool {
+        if database == nil {
+            if FileManager.default.fileExists(atPath: pathToDatabase) {
+                database = FMDatabase(path: pathToDatabase)
+            }
+        }
+        
+        if database != nil {
+            if database.open() {
+                return true
+            }
+        }
+        
+        return false
+    }
+    
     func deleteolddata() -> Bool
     {
-        let documentsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+        var result = false;
         
-        let databasePath  = documentsURL.appendingPathComponent(databasename)
+        if openDatabase() {
+           
+            let deletequery  = NSString(format:"delete from songs")
+            
+            result = database.executeUpdate(deletequery as String, withArgumentsIn: nil)
+            
+            
+        }
         
-        let strdatabasepath = databasePath.absoluteString
-        
-        let dirDB = FMDatabase(path: strdatabasepath)
-        
-        dirDB?.open()
-        
-        let deletequery  = NSString(format:"delete from songs")
-        
-        let result = dirDB?.executeUpdate(deletequery as String, withArgumentsIn: nil)
-        
-        dirDB?.close()
-        
-        return result!
+        return result
     }
     
     func InsertData(data:NSArray) -> Bool
     {
-        let documentsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
-        
-        let databasePath  = documentsURL.appendingPathComponent(databasename)
-        
-        let strdatabasepath = databasePath.absoluteString
-        
-        let dirDB = FMDatabase(path: strdatabasepath)
-        
-        dirDB?.open()
+        var result = false
         
         var insertSQL = ""
         
-        for i in 0..<data.count
+        if(openDatabase())
         {
-            //insertSQL += NSString(format: "INSERT INTO songs     (,sessionid,mobile,email,address,companyname,workaddress,photo,designation,worknumber,personalurl,companyurl,SessionType,CreatedDate,othernumber,otheraddress,otherurl,othermail,workmail) VALUES ('\(firstname + LastName)','\("HUB" + " # " + self.sessionid1)','\(MobilePhone)','\(EmailAddress)','\(PostalAddress)','\(Organization)','\(WorkAddress)','\(Image)','\(Designation)','\(Worknumber)','\(WorkUrl)','\(CompanyUrl)','\(self.SessionType)','\(CreatedDate)','\(Othernumber)','\(Otheraddress)','\(Otherurl)','\(Otheremail)','\(Workemail)');" as NSString)
+            for i in 0..<data.count
+            {
+                
+                let createMoviesTableQuery = "create table songs (\(DataDic.Id) integer primary key autoincrement not null, \(DataDic.artistId) text, \(DataDic.artistName) text,\(DataDic.artistViewUrl) text,\(DataDic.artworkUrl100) text,\(DataDic.artworkUrl30) text,\(DataDic.artworkUrl60) text,\(DataDic.collectionCensoredName) text,\(DataDic.collectionExplicitness) text,\(DataDic.collectionId) text,\(DataDic.collectionName) text,\(DataDic.collectionViewUrl) text,\(DataDic.previewUrl) text,\(DataDic.trackId) text,\(DataDic.trackName) text,\(DataDic.trackViewUrl) text)"
+                
+                insertSQL += NSString(format: "INSERT INTO songs (Id,artistId,artistName,artistViewUrl,artworkUrl100,artworkUrl30,artworkUrl60,collectionCensoredName,collectionExplicitness,collectionId,collectionName,collectionViewUrl,previewUrl,trackId,trackName,trackViewUrl) VALUES (null,'','','','','','','','','','','','','','','');" as NSString) as String
+                
+            }
+            
+            
+            
+            result = database.executeUpdate(insertSQL as String, withArgumentsIn: nil)
             
         }
+       
         
-        let result = dirDB?.executeUpdate(insertSQL as String, withArgumentsIn: nil)
-        
-        dirDB?.close()
-        
-        return result!
+        return result
     }
     
     
@@ -65,19 +122,12 @@ class demoHelper: NSObject {
         var collectionarray = NSArray()
         var userDic : [String : AnyObject] = [:]
         var jsonarray = NSMutableArray()
-        
-        let documentsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
-        let databasePath  = documentsURL.appendingPathComponent(databasename)
-        
-        let strdatabasepath = databasePath.absoluteString
-        
-        let dirDB = FMDatabase(path: strdatabasepath)
-        
-        if(dirDB?.open())!{
+
+        if(openDatabase()){
             
             let getlistquery = "select * FROM songs GROUP BY collectionname"
             
-            let results1:FMResultSet? = dirDB?.executeQuery(getlistquery,
+            let results1:FMResultSet? = database.executeQuery(getlistquery,
                                                             withArgumentsIn: nil)
             while results1?.next() == true {
                 
@@ -96,12 +146,12 @@ class demoHelper: NSObject {
                 collectionarray = alldataarray
                 
             }
-            dirDB?.close()
+           
         }
         
         jsonarray = NSMutableArray()
         
-        if(dirDB?.open())!{
+        if(openDatabase()){
             
             for i in 0..<collectionarray.count
             {
@@ -116,7 +166,7 @@ class demoHelper: NSObject {
                 
                 let getlistquery = "select * FROM songs WHERE collectionname = '\(collectionname)'"
                 
-                let results1:FMResultSet? = dirDB?.executeQuery(getlistquery,
+                let results1:FMResultSet? = database.executeQuery(getlistquery,
                                                                 withArgumentsIn: nil)
                 while results1?.next() == true {
                     
@@ -134,7 +184,7 @@ class demoHelper: NSObject {
                     
                 }
             }
-            dirDB?.close()
+            
         }
         
         userDic = ["GroupArray":collectionarray as AnyObject,
