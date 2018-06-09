@@ -21,12 +21,14 @@ class ViewController: UIViewController,UITableViewDelegate,UITableViewDataSource
     var expandedSectionHeaderNumber: Int = -1
     var expandedSectionHeader: UITableViewHeaderFooterView!
     
-    var sections = [Category]()
+    var jsonarray = NSMutableArray()
+    
+    //var sections = [Category]()
    
-    struct Category {
-        let name : String
-        var items : [[String:Any]]
-    }
+//    struct Category {
+//        let name : String
+//        var items : [[String:Any]]
+//    }
     
     var dataArr = NSArray()
     var collectionarray = NSArray()
@@ -56,21 +58,24 @@ class ViewController: UIViewController,UITableViewDelegate,UITableViewDataSource
                     if(result.count > 0)
                     {
                         
-                        if(demoHelper.sharedInstance.deleteolddata())
-                        {
-                            if(demoHelper.sharedInstance.InsertData(data: result))
-                            {
-                                print("success insert")
-                            }
-                            else
-                            {
-                                print("failer insert")
-                            }
-                        }
-                        else
-                        {
-                            print("fail delete")
-                        }
+//                        if(demoHelper.sharedInstance.deleteolddata())
+//                        {
+//                            if(demoHelper.sharedInstance.InsertData(data: result))
+//                            {
+//                                print("success insert")
+//                            }
+//                            else
+//                            {
+//                                print("failer insert")
+//                            }
+//                        }
+//                        else
+//                        {
+//                            print("fail delete")
+//                        }
+                        
+                        self.jsonarray = demoHelper.sharedInstance.GetDataCollection() as NSMutableArray
+                        self.tableview.reloadData()
                     }
                     
                 } else
@@ -87,10 +92,17 @@ class ViewController: UIViewController,UITableViewDelegate,UITableViewDataSource
     }
 
 
+    func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+        return 50
+    }
+    
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        return 60
+    }
     func numberOfSections(in tableView: UITableView) -> Int {
-        if self.sections.count > 0 {
+        if self.jsonarray.count > 0 {
             tableView.backgroundView = nil
-            return self.sections.count
+            return self.jsonarray.count
         } else {
             let messageLabel = UILabel(frame: CGRect(x: 0, y: 0, width: view.bounds.size.width, height: view.bounds.size.height))
             messageLabel.text = "Retrieving data.\nPlease wait."
@@ -106,8 +118,9 @@ class ViewController: UIViewController,UITableViewDelegate,UITableViewDataSource
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         if (self.expandedSectionHeaderNumber == section) {
-            let arrayOfItems = self.sections[section].items
-            return arrayOfItems.count;
+            let dataofsection = self.jsonarray[section] as? NSDictionary
+            let arrayOfItems = dataofsection?.object(forKey: "songarray") as? NSMutableArray
+            return arrayOfItems!.count;
         } else {
             return 0;
         }
@@ -115,8 +128,11 @@ class ViewController: UIViewController,UITableViewDelegate,UITableViewDataSource
     
     func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
         
-        if (self.sections.count != 0) {
-            return self.sections[section].name
+        if (self.jsonarray.count != 0) {
+            let dataofsection = self.jsonarray[section] as? NSDictionary
+            let collectiondic = dataofsection?.object(forKey: "collectiondic") as? NSDictionary
+            let collectionname = collectiondic?.object(forKey: "collectionName") as! String
+            return collectionname
         }
         return ""
         
@@ -164,16 +180,18 @@ class ViewController: UIViewController,UITableViewDelegate,UITableViewDataSource
     
     
     func tableViewCollapeSection(_ section: Int, imageView: UIImageView) {
-        let sectionData = self.sections[section].items as NSArray
+        let sectionData = self.jsonarray[section] as? NSDictionary
+        let arrayOfItems = sectionData?.object(forKey: "songarray") as! NSMutableArray
+        
         self.expandedSectionHeaderNumber = -1;
-        if (sectionData.count == 0) {
+        if (arrayOfItems.count == 0) {
             return;
         } else {
             UIView.animate(withDuration: 0.4, animations: {
                 imageView.transform = CGAffineTransform(rotationAngle: (0.0 * CGFloat(Double.pi)) / 180.0)
             })
             var indexesPath = [IndexPath]()
-            for i in 0 ..< sectionData.count {
+            for i in 0 ..< arrayOfItems.count {
                 let index = IndexPath(row: i, section: section)
                 indexesPath.append(index)
             }
@@ -184,8 +202,10 @@ class ViewController: UIViewController,UITableViewDelegate,UITableViewDataSource
     }
     
     func tableViewExpandSection(_ section: Int, imageView: UIImageView) {
-        let sectionData = self.sections[section].items as NSArray
-        if (sectionData.count == 0) {
+        let sectionData = self.jsonarray[section] as? NSDictionary
+        let arrayOfItems = sectionData?.object(forKey: "songarray") as! NSMutableArray
+        
+        if (arrayOfItems.count == 0) {
             self.expandedSectionHeaderNumber = -1;
             return;
         } else {
@@ -193,7 +213,7 @@ class ViewController: UIViewController,UITableViewDelegate,UITableViewDataSource
                 imageView.transform = CGAffineTransform(rotationAngle: (180.0 * CGFloat(Double.pi)) / 180.0)
             })
             var indexesPath = [IndexPath]()
-            for i in 0 ..< sectionData.count {
+            for i in 0 ..< arrayOfItems.count {
                 let index = IndexPath(row: i, section: section)
                 indexesPath.append(index)
             }
@@ -208,10 +228,13 @@ class ViewController: UIViewController,UITableViewDelegate,UITableViewDataSource
         
         let cell = tableView.dequeueReusableCell(withIdentifier: "Cell") as! CustomCell
         
-        let items = self.sections[indexPath.section].items
+        let sectionData = self.jsonarray[indexPath.section] as? NSDictionary
+        let items = sectionData?.object(forKey: "songarray") as! NSMutableArray
         
-        let dic = items[indexPath.row] as NSDictionary
-      
+        let dic = items[indexPath.row] as! NSDictionary
+        
+        cell.lblname.text = dic.object(forKey: DataDic.trackName) as? String
+        
         cell.selectionStyle = UITableViewCellSelectionStyle.none
         
         return cell

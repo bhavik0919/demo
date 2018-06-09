@@ -96,16 +96,29 @@ class demoHelper: NSObject {
         {
             for i in 0..<data.count
             {
+                let dataobj = data[i] as? NSDictionary
                 
-                let createMoviesTableQuery = "create table songs (\(DataDic.Id) integer primary key autoincrement not null, \(DataDic.artistId) text, \(DataDic.artistName) text,\(DataDic.artistViewUrl) text,\(DataDic.artworkUrl100) text,\(DataDic.artworkUrl30) text,\(DataDic.artworkUrl60) text,\(DataDic.collectionCensoredName) text,\(DataDic.collectionExplicitness) text,\(DataDic.collectionId) text,\(DataDic.collectionName) text,\(DataDic.collectionViewUrl) text,\(DataDic.previewUrl) text,\(DataDic.trackId) text,\(DataDic.trackName) text,\(DataDic.trackViewUrl) text)"
+                let artistId = String(dataobj?.object(forKey: DataDic.artistId) as! Int)
+                let artistName = dataobj?.object(forKey: DataDic.artistName) as! String
+                let artistViewUrl = dataobj?.object(forKey: DataDic.artistViewUrl) as! String
+                let artworkUrl100 = dataobj?.object(forKey: DataDic.artworkUrl100) as! String
+                let artworkUrl30 = dataobj?.object(forKey: DataDic.artworkUrl30) as! String
+                let artworkUrl60 = dataobj?.object(forKey: DataDic.artworkUrl60) as! String
+                let collectionCensoredName = dataobj?.object(forKey: DataDic.collectionCensoredName) as! String
+                let collectionExplicitness = dataobj?.object(forKey: DataDic.collectionExplicitness) as! String
+                let collectionName = dataobj?.object(forKey: DataDic.collectionName) as! String
+                let collectionId = String(dataobj?.object(forKey: DataDic.collectionId) as! Int)
+                let collectionViewUrl = dataobj?.object(forKey: DataDic.collectionViewUrl) as! String
+                let previewUrl = dataobj?.object(forKey: DataDic.previewUrl) as! String
+                let trackId = String(dataobj?.object(forKey: DataDic.trackId) as! Int)
+                let trackName = dataobj?.object(forKey: DataDic.trackName) as! String
+                let trackViewUrl = dataobj?.object(forKey: DataDic.trackViewUrl) as! String
                 
-                insertSQL += NSString(format: "INSERT INTO songs (Id,artistId,artistName,artistViewUrl,artworkUrl100,artworkUrl30,artworkUrl60,collectionCensoredName,collectionExplicitness,collectionId,collectionName,collectionViewUrl,previewUrl,trackId,trackName,trackViewUrl) VALUES (null,'','','','','','','','','','','','','','','');" as NSString) as String
+                insertSQL += "INSERT INTO songs (Id,artistId,artistName,artistViewUrl,artworkUrl100,artworkUrl30,artworkUrl60,collectionCensoredName,collectionExplicitness,collectionId,collectionName,collectionViewUrl,previewUrl,trackId,trackName,trackViewUrl) VALUES (null,\(artistId),'\(artistName)','\(artistViewUrl)','\(artworkUrl100)','\(artworkUrl30)','\(artworkUrl60)','\(collectionCensoredName)','\(collectionExplicitness)',\(collectionId),'\(collectionName)','\(collectionViewUrl)','\(previewUrl)',\(trackId),'\(trackName)','\(trackViewUrl)');"
                 
             }
             
-            
-            
-            result = database.executeUpdate(insertSQL as String, withArgumentsIn: nil)
+            result = database.executeStatements(insertSQL)
             
         }
        
@@ -130,16 +143,13 @@ class demoHelper: NSObject {
             let results1:FMResultSet? = database.executeQuery(getlistquery,
                                                             withArgumentsIn: nil)
             while results1?.next() == true {
-                
-                innerDic["name"] = results1?.string(forColumn: "name")
-                innerDic["sessionid"] = results1?.string(forColumn: "sessionid")
-                innerDic["mobile"] = results1?.string(forColumn: "mobile")
-                innerDic["email"] = results1?.string(forColumn: "email")
-                innerDic["address"] = results1?.string(forColumn: "address")
-                innerDic["companyname"] = results1?.string(forColumn: "companyname")
-                innerDic["workaddress"] = results1?.string(forColumn: "workaddress")
-                innerDic["photo"] = results1?.string(forColumn: "photo")
-                innerDic["id"] = results1?.string(forColumn: "id")
+               
+                innerDic["collectionId"] = results1?.string(forColumn: "collectionId")
+                innerDic["collectionName"] = results1?.string(forColumn: "collectionName")
+                innerDic["collectionViewUrl"] = results1?.string(forColumn: "collectionViewUrl")
+                innerDic["collectionCensoredName"] = results1?.string(forColumn: "collectionCensoredName")
+                innerDic["collectionExplicitness"] = results1?.string(forColumn: "collectionExplicitness")
+                innerDic["Id"] = results1?.string(forColumn: "Id")
                 
                 alldataarray.add(innerDic)
                
@@ -155,42 +165,42 @@ class demoHelper: NSObject {
             
             for i in 0..<collectionarray.count
             {
+                
                 let dic = collectionarray[i] as? NSDictionary
-//                let sessionid1 = dics.object(forKey: "sessionid") as! String
-//                let sessiontype = dics.object(forKey: "SessionType") as! String
-//                let createddate = dics.object(forKey: "CreatedDate") as! String
                 
                 alldataarray2 = NSMutableArray()
                 
-                let collectionname = dic?.object(forKey: "collectionname") as! String
+                let collectionname = dic?.object(forKey: "collectionName") as! String
                 
-                let getlistquery = "select * FROM songs WHERE collectionname = '\(collectionname)'"
+                let getlistquery = "select * FROM songs WHERE collectionName = '\(collectionname)'"
                 
                 let results1:FMResultSet? = database.executeQuery(getlistquery,
                                                                 withArgumentsIn: nil)
                 while results1?.next() == true {
-                    
-                    innerDic["name"] = results1?.string(forColumn: "name")
-                    innerDic["sessionid"] = results1?.string(forColumn: "sessionid")
-                    innerDic["mobile"] = results1?.string(forColumn: "mobile")
-                    innerDic["email"] = results1?.string(forColumn: "email")
-                    innerDic["address"] = results1?.string(forColumn: "address")
-                    innerDic["companyname"] = results1?.string(forColumn: "companyname")
-                    innerDic["workaddress"] = results1?.string(forColumn: "workaddress")
-                    innerDic["photo"] = results1?.string(forColumn: "photo")
-                    innerDic["id"] = results1?.string(forColumn: "id")
+    
+                    innerDic["artistId"] = results1?.string(forColumn: "artistId")
+                    innerDic["artistName"] = results1?.string(forColumn: "artistName")
+                    innerDic["artistViewUrl"] = results1?.string(forColumn: "artistViewUrl")
+                    innerDic["artworkUrl100"] = results1?.string(forColumn: "artworkUrl100")
+                    innerDic["artworkUrl30"] = results1?.string(forColumn: "artworkUrl30")
+                    innerDic["previewUrl"] = results1?.string(forColumn: "previewUrl")
+                    innerDic["trackId"] = results1?.string(forColumn: "trackId")
+                    innerDic["trackName"] = results1?.string(forColumn: "trackName")
+                    innerDic["trackViewUrl"] = results1?.string(forColumn: "trackViewUrl")
+                    innerDic["Id"] = results1?.string(forColumn: "Id")
                     
                     alldataarray2.add(innerDic)
                     
                 }
+                
+                userDic = ["collectiondic":dic as AnyObject,
+                           "songarray":alldataarray2 as AnyObject]
+                
+                jsonarray.add(userDic)
+                
             }
             
         }
-        
-        userDic = ["GroupArray":collectionarray as AnyObject,
-                   "SessionArray":alldataarray2 as AnyObject]
-        
-        jsonarray.add(userDic)
         
         return jsonarray
         
