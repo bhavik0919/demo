@@ -96,29 +96,123 @@ class demoHelper: NSObject {
         {
             for i in 0..<data.count
             {
-                let dataobj = data[i] as? NSDictionary
+                let dataobj = data[i] as! NSDictionary
+                if(dataobj.count > 30)
+                {
+                 
+                var artistId = 0
                 
-                let artistId = String(dataobj?.object(forKey: DataDic.artistId) as! Int)
-                let artistName = dataobj?.object(forKey: DataDic.artistName) as! String
-                let artistViewUrl = dataobj?.object(forKey: DataDic.artistViewUrl) as! String
-                let artworkUrl100 = dataobj?.object(forKey: DataDic.artworkUrl100) as! String
-                let artworkUrl30 = dataobj?.object(forKey: DataDic.artworkUrl30) as! String
-                let artworkUrl60 = dataobj?.object(forKey: DataDic.artworkUrl60) as! String
-                let collectionCensoredName = dataobj?.object(forKey: DataDic.collectionCensoredName) as! String
-                let collectionExplicitness = dataobj?.object(forKey: DataDic.collectionExplicitness) as! String
-                let collectionName = dataobj?.object(forKey: DataDic.collectionName) as! String
-                let collectionId = String(dataobj?.object(forKey: DataDic.collectionId) as! Int)
-                let collectionViewUrl = dataobj?.object(forKey: DataDic.collectionViewUrl) as! String
-                let previewUrl = dataobj?.object(forKey: DataDic.previewUrl) as! String
-                let trackId = String(dataobj?.object(forKey: DataDic.trackId) as! Int)
-                let trackName = dataobj?.object(forKey: DataDic.trackName) as! String
-                let trackViewUrl = dataobj?.object(forKey: DataDic.trackViewUrl) as! String
+                if((dataobj.object(forKey: DataDic.artistId)) != nil)
+                {
+                   artistId = dataobj.object(forKey: DataDic.artistId) as! Int
+                }
                 
-                insertSQL += "INSERT INTO songs (Id,artistId,artistName,artistViewUrl,artworkUrl100,artworkUrl30,artworkUrl60,collectionCensoredName,collectionExplicitness,collectionId,collectionName,collectionViewUrl,previewUrl,trackId,trackName,trackViewUrl) VALUES (null,\(artistId),'\(artistName)','\(artistViewUrl)','\(artworkUrl100)','\(artworkUrl30)','\(artworkUrl60)','\(collectionCensoredName)','\(collectionExplicitness)',\(collectionId),'\(collectionName)','\(collectionViewUrl)','\(previewUrl)',\(trackId),'\(trackName)','\(trackViewUrl)');"
+                var artistName = "NONE"
+                
+                if((dataobj.object(forKey: DataDic.artistName)) != nil)
+                {
+                    artistName = dataobj.object(forKey: DataDic.artistName) as! String
+                }
+                
+                var artistViewUrl = "NONE"
+                
+                if((dataobj.object(forKey: DataDic.artistViewUrl)) != nil)
+                {
+                    artistViewUrl = dataobj.object(forKey: DataDic.artistViewUrl) as! String
+                }
+                
+                var artworkUrl100 = "NONE"
+                
+                if((dataobj.object(forKey: DataDic.artworkUrl100)) != nil)
+                {
+                    artworkUrl100 = dataobj.object(forKey: DataDic.artworkUrl100) as! String
+                }
+                
+                var artworkUrl30 = "NONE"
+                
+                if((dataobj.object(forKey: DataDic.artworkUrl30)) != nil)
+                {
+                    artworkUrl30 = dataobj.object(forKey: DataDic.artworkUrl30) as! String
+                }
+                
+                var artworkUrl60 = "NONE"
+                
+                if((dataobj.object(forKey: DataDic.artworkUrl60)) != nil)
+                {
+                    artworkUrl60 = dataobj.object(forKey: DataDic.artworkUrl60) as! String
+                }
+               
+                var collectionCensoredName = "NONE"
+                
+                if((dataobj.object(forKey: DataDic.collectionCensoredName)) != nil)
+                {
+                    collectionCensoredName = dataobj.object(forKey: DataDic.collectionCensoredName) as! String
+                }
+                
+                var collectionExplicitness = "NONE"
+                
+                if((dataobj.object(forKey: DataDic.collectionExplicitness)) != nil)
+                {
+                    collectionExplicitness = dataobj.object(forKey: DataDic.collectionExplicitness) as! String
+                }
+                
+                var collectionName = "NONE"
+                
+                if((dataobj.object(forKey: DataDic.collectionName)) != nil)
+                {
+                    collectionName = dataobj.object(forKey: DataDic.collectionName) as! String
+                }
+                
+                var collectionId = 0
+                
+                if((dataobj.object(forKey: DataDic.collectionId)) != nil)
+                {
+                    collectionId = dataobj.object(forKey: DataDic.collectionId) as! Int
+                }
+                
+                var collectionViewUrl = "NONE"
+                
+                if((dataobj.object(forKey: DataDic.collectionViewUrl)) != nil)
+                {
+                    collectionViewUrl = dataobj.object(forKey: DataDic.collectionViewUrl) as! String
+                }
+                
+                var previewUrl = "NONE"
+                
+                if((dataobj.object(forKey: DataDic.previewUrl)) != nil)
+                {
+                    previewUrl = dataobj.object(forKey: DataDic.previewUrl) as! String
+                }
+                
+                
+                var trackId = 0
+                
+                if((dataobj.object(forKey: DataDic.trackId)) != nil)
+                {
+                    trackId = dataobj.object(forKey: DataDic.trackId) as! Int
+                }
+                
+                var trackName = "NONE"
+                
+                if((dataobj.object(forKey: DataDic.trackName)) != nil)
+                {
+                    trackName = dataobj.object(forKey: DataDic.trackName) as! String
+                }
+                
+                var trackViewUrl = "NONE"
+                
+                if((dataobj.object(forKey: DataDic.trackViewUrl)) != nil)
+                {
+                    trackViewUrl = dataobj.object(forKey: DataDic.trackViewUrl) as! String
+                }
+               
+                insertSQL = "INSERT INTO songs (Id,artistId,artistName,artistViewUrl,artworkUrl100,artworkUrl30,artworkUrl60,collectionCensoredName,collectionExplicitness,collectionId,collectionName,collectionViewUrl,previewUrl,trackId,trackName,trackViewUrl) VALUES (null,\(artistId),'\(artistName)','\(artistViewUrl)','\(artworkUrl100)','\(artworkUrl30)','\(artworkUrl60)','\(collectionCensoredName)','\(collectionExplicitness)',\(collectionId),'\(collectionName)','\(collectionViewUrl)','\(previewUrl)',\(trackId),'\(trackName)','\(trackViewUrl)');"
+                  
+                result = database.executeStatements(insertSQL)
+                
+                }
                 
             }
-            
-            result = database.executeStatements(insertSQL)
             
         }
        
@@ -238,3 +332,6 @@ extension UIColor {
         theImageView.tintColor = newColor;
     }
 }
+
+
+

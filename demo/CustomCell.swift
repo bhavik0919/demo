@@ -13,6 +13,7 @@ class CustomCell : UITableViewCell {
     
     @IBOutlet weak var trackimage: UIImageView!
     @IBOutlet weak var playerbutton: customebutton!
+    var avplayer:AVPlayer!
     
     @IBOutlet weak var lblname: UILabel!
     

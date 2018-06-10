@@ -16,7 +16,7 @@ struct GlobleUrl {
 }
 
 struct ApiMethodName {
-    static let searchapi = "search?term=jack+johnson"
+    static let searchapi = "search?term="
 }
 
 struct DataDic  {

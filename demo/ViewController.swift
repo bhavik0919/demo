@@ -9,10 +9,11 @@
 import UIKit
 import AVFoundation
 
-class ViewController: UIViewController,UITableViewDelegate,UITableViewDataSource  {
+class ViewController: UIViewController,UITableViewDelegate,UITableViewDataSource,UISearchBarDelegate  {
     var boolValue = false
     @IBOutlet var tableview: UITableView!
-    var avplayer:AVPlayer!
+    var queue = OperationQueue()
+    @IBOutlet weak var searchbar: UISearchBar!
     
     let kHeaderSectionTag: Int = 6900;
     
@@ -24,31 +25,26 @@ class ViewController: UIViewController,UITableViewDelegate,UITableViewDataSource
     var expandedSectionHeader: UITableViewHeaderFooterView!
     
     var jsonarray = NSMutableArray()
-    
-    //var sections = [Category]()
-   
-//    struct Category {
-//        let name : String
-//        var items : [[String:Any]]
-//    }
-    
+
     var dataArr = NSArray()
     var collectionarray = NSArray()
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        self.GetData()
-        
+        tableview.tableFooterView = UIView(frame: .zero)
         // Do any additional setup after loading the view, typically from a nib.
     }
 
-    func GetData()
+    
+    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+        self.GetData(search: searchbar.text!)
+    }
+    func GetData(search:String)
     {
       
         let parameter : [String:Any] = ["":""]
         
-        
-        APIClient.GetApi(url: ApiMethodName.searchapi, parameter as [String : AnyObject] , completion: { (data, error)->Void in
+        APIClient.GetApi(url: ApiMethodName.searchapi + search, parameter as [String : AnyObject] , completion: { (data, error)->Void in
             if((error) != nil) {
                 
                 
@@ -60,24 +56,23 @@ class ViewController: UIViewController,UITableViewDelegate,UITableViewDataSource
                     if(result.count > 0)
                     {
                         
-//                        if(demoHelper.sharedInstance.deleteolddata())
-//                        {
-//                            if(demoHelper.sharedInstance.InsertData(data: result))
-//                            {
-//                                print("success insert")
-//                            }
-//                            else
-//                            {
-//                                print("failer insert")
-//                            }
-//                        }
-//                        else
-//                        {
-//                            print("fail delete")
-//                        }
+                        if(demoHelper.sharedInstance.deleteolddata())
+                        {
+                            if(demoHelper.sharedInstance.InsertData(data: result))
+                            {
+                                self.jsonarray = demoHelper.sharedInstance.GetDataCollection() as NSMutableArray
+                                self.tableview.reloadData()
+                            }
+                            else
+                            {
+                                print("failer insert")
+                            }
+                        }
+                        else
+                        {
+                            print("fail delete")
+                        }
                         
-                        self.jsonarray = demoHelper.sharedInstance.GetDataCollection() as NSMutableArray
-                        self.tableview.reloadData()
                     }
                     
                 } else
@@ -95,11 +90,11 @@ class ViewController: UIViewController,UITableViewDelegate,UITableViewDataSource
 
 
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
-        return 50
+        return 70
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return 60
+        return 80
     }
     func numberOfSections(in tableView: UITableView) -> Int {
         if self.jsonarray.count > 0 {
@@ -180,28 +175,6 @@ class ViewController: UIViewController,UITableViewDelegate,UITableViewDataSource
         }
     }
     
-    func pl(file:NSString) -> AVPlayer? {
-        
-        let url = URL(string: file as String)
-        let avPlayer: AVPlayer?
-        let playerItem = AVPlayerItem(url: url!)
-        avPlayer = AVPlayer(playerItem:playerItem)
-        
-        
-        
-        if avPlayer?.rate == 0 {
-            avPlayer?.play()
-            avPlayer?.rate = 1.0
-        } else if avPlayer?.rate == 1{
-            
-            avPlayer?.pause()
-            
-        }
-        
-        return avPlayer
-        
-    }
-    
     @objc func tickClicked(_ sender: customebutton!) {
         
         //let cellTop = tableview.cellForRow(at: NSIndexPath(row: sender.tag, section: sender.section!) as IndexPath) as!CustomCell
@@ -241,6 +214,7 @@ class ViewController: UIViewController,UITableViewDelegate,UITableViewDataSource
         let sectionData = self.jsonarray[section] as? NSDictionary
         let arrayOfItems = sectionData?.object(forKey: "songarray") as! NSMutableArray
         
+        
         if (arrayOfItems.count == 0) {
             self.expandedSectionHeaderNumber = -1;
             return;
@@ -262,7 +236,7 @@ class ViewController: UIViewController,UITableViewDelegate,UITableViewDataSource
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
-        var cell = tableView.dequeueReusableCell(withIdentifier: "Cell") as! CustomCell
+        let cell = tableView.dequeueReusableCell(withIdentifier: "Cell") as! CustomCell
         
         let sectionData = self.jsonarray[indexPath.section] as? NSDictionary
         let items = sectionData?.object(forKey: "songarray") as! NSMutableArray
@@ -281,24 +255,40 @@ class ViewController: UIViewController,UITableViewDelegate,UITableViewDataSource
         cell.playerbutton.addTarget(self, action: #selector(tickClicked), for: .touchUpInside)
         cell.tag = indexPath.row
         
+        let url = URL(string: (dic.object(forKey: DataDic.previewUrl) as? String)!)
         
-//        if self.avplayer!.rate == 0
-//        {
-//
-//            self.avplayer.play()
-//            cell.playerbutton!.setTitle("Pause", for: UIControlState.normal)
-//        } else {
-//            self.avplayer.pause()
-//            cell.playerbutton!.setTitle("Play", for: UIControlState.normal)
-//        }
+        let playerItem = AVPlayerItem(url: url!)
+        cell.avplayer = AVPlayer(playerItem:playerItem)
         
-        cell.tapAction = { (cell) in
+        cell.tapAction = { (cell2) in
+            if cell.avplayer.rate == 0 {
+                cell.avplayer?.play()
+                cell.playerbutton!.setTitle("Pause", for: UIControlState.normal)
+                cell.avplayer?.rate = 1.0
+            } else if cell.avplayer?.rate == 1{
+                cell.avplayer?.pause()
+                cell.playerbutton!.setTitle("Play", for: UIControlState.normal)
+            }
+        }
+
+        var img: UIImage!
         
-            self.avplayer = self.pl(file: dic.object(forKey: "previewUrl") as! NSString)
+        let operation = BlockOperation(block: {
+            img = Downloader.downloadImageWithURl(dic.object(forKey: DataDic.artworkUrl100) as! String)
+        })
+        
+        operation.completionBlock = {
+            DispatchQueue.main.async {
+                if(img != nil)
+                {
+                    cell.trackimage?.image = img
+                }
+                
+            }
             
         }
+        queue.addOperation(operation)
         
-
         cell.selectionStyle = UITableViewCellSelectionStyle.none
         
         return cell
@@ -308,21 +298,25 @@ class ViewController: UIViewController,UITableViewDelegate,UITableViewDataSource
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath)
     {
        
-//        let sectionData = self.jsonarray[indexPath.section] as? NSDictionary
-//        let items = sectionData?.object(forKey: "songarray") as! NSMutableArray
-//
-//        let dic = items[indexPath.row] as! NSDictionary
-//
-//        if player!.rate == 0
-//        {
-//            player!.play()
-//            //playButton!.setImage(UIImage(named: "player_control_pause_50px.png"), forState: UIControlState.Normal)
-//            //cell.playerbutton.setTitle("Pause", for: UIControlState.normal)
-//        } else {
-//            player!.pause()
-//            //playButton!.setImage(UIImage(named: "player_control_play_50px.png"), forState: UIControlState.Normal)
-//            //cell.playerbutton!.setTitle("Play", for: UIControlState.normal)
-//        }
+
     }
+}
+
+class Downloader {
+    class func downloadImageWithURl(_ url: String) -> UIImage! {
+        if let data = try? Data(contentsOf: URL(string: url)!) {
+            if(data != nil)
+            {
+              return UIImage(data: data)!
+            }
+            else
+            {
+              return nil
+            }
+            
+        }
+        return nil
+    }
+    
 }
 
