@@ -7,10 +7,12 @@
 //
 
 import UIKit
+import AVFoundation
 
 class ViewController: UIViewController,UITableViewDelegate,UITableViewDataSource  {
-
+    var boolValue = false
     @IBOutlet var tableview: UITableView!
+    var avplayer:AVPlayer!
     
     let kHeaderSectionTag: Int = 6900;
     
@@ -178,7 +180,41 @@ class ViewController: UIViewController,UITableViewDelegate,UITableViewDataSource
         }
     }
     
+    func pl(file:NSString) -> AVPlayer? {
+        
+        let url = URL(string: file as String)
+        let avPlayer: AVPlayer?
+        let playerItem = AVPlayerItem(url: url!)
+        avPlayer = AVPlayer(playerItem:playerItem)
+        
+        
+        
+        if avPlayer?.rate == 0 {
+            avPlayer?.play()
+            avPlayer?.rate = 1.0
+        } else if avPlayer?.rate == 1{
+            
+            avPlayer?.pause()
+            
+        }
+        
+        return avPlayer
+        
+    }
     
+    @objc func tickClicked(_ sender: customebutton!) {
+        
+        //let cellTop = tableview.cellForRow(at: NSIndexPath(row: sender.tag, section: sender.section!) as IndexPath) as!CustomCell
+        
+        if boolValue == false{
+            //cellTop.playerbutton.setImage(UIImage(named:"Pause.png"), for: UIControlState.normal)
+            boolValue = true
+        } else {
+            //cellTop.playerbutton.setImage(UIImage(named:"Play.png"), for: UIControlState.normal)
+            boolValue = false
+        }
+    }
+
     func tableViewCollapeSection(_ section: Int, imageView: UIImageView) {
         let sectionData = self.jsonarray[section] as? NSDictionary
         let arrayOfItems = sectionData?.object(forKey: "songarray") as! NSMutableArray
@@ -226,15 +262,43 @@ class ViewController: UIViewController,UITableViewDelegate,UITableViewDataSource
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
-        let cell = tableView.dequeueReusableCell(withIdentifier: "Cell") as! CustomCell
+        var cell = tableView.dequeueReusableCell(withIdentifier: "Cell") as! CustomCell
         
         let sectionData = self.jsonarray[indexPath.section] as? NSDictionary
         let items = sectionData?.object(forKey: "songarray") as! NSMutableArray
         
         let dic = items[indexPath.row] as! NSDictionary
-        
+       
         cell.lblname.text = dic.object(forKey: DataDic.trackName) as? String
         
+        cell.playerbutton.tag = indexPath.row
+        cell.playerbutton.section = indexPath.row
+        
+        cell.playerbutton!.backgroundColor = UIColor.lightGray
+        cell.playerbutton!.setTitle("Play", for: UIControlState.normal)
+        cell.playerbutton!.tintColor = UIColor.black
+        
+        cell.playerbutton.addTarget(self, action: #selector(tickClicked), for: .touchUpInside)
+        cell.tag = indexPath.row
+        
+        
+//        if self.avplayer!.rate == 0
+//        {
+//
+//            self.avplayer.play()
+//            cell.playerbutton!.setTitle("Pause", for: UIControlState.normal)
+//        } else {
+//            self.avplayer.pause()
+//            cell.playerbutton!.setTitle("Play", for: UIControlState.normal)
+//        }
+        
+        cell.tapAction = { (cell) in
+        
+            self.avplayer = self.pl(file: dic.object(forKey: "previewUrl") as! NSString)
+            
+        }
+        
+
         cell.selectionStyle = UITableViewCellSelectionStyle.none
         
         return cell
@@ -244,6 +308,21 @@ class ViewController: UIViewController,UITableViewDelegate,UITableViewDataSource
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath)
     {
        
+//        let sectionData = self.jsonarray[indexPath.section] as? NSDictionary
+//        let items = sectionData?.object(forKey: "songarray") as! NSMutableArray
+//
+//        let dic = items[indexPath.row] as! NSDictionary
+//
+//        if player!.rate == 0
+//        {
+//            player!.play()
+//            //playButton!.setImage(UIImage(named: "player_control_pause_50px.png"), forState: UIControlState.Normal)
+//            //cell.playerbutton.setTitle("Pause", for: UIControlState.normal)
+//        } else {
+//            player!.pause()
+//            //playButton!.setImage(UIImage(named: "player_control_play_50px.png"), forState: UIControlState.Normal)
+//            //cell.playerbutton!.setTitle("Play", for: UIControlState.normal)
+//        }
     }
 }
 

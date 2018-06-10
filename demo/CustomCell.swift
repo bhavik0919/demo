@@ -7,9 +7,12 @@
 //
 
 import UIKit
-
+import AVFoundation
 
 class CustomCell : UITableViewCell {
+    
+    @IBOutlet weak var trackimage: UIImageView!
+    @IBOutlet weak var playerbutton: customebutton!
     
     @IBOutlet weak var lblname: UILabel!
     
@@ -24,8 +27,16 @@ class CustomCell : UITableViewCell {
         // Configure the view for the selected state
     }
     
+    var tapAction: ((UITableViewCell) -> Void)?
+    @IBAction func playAudio(_ sender: Any) {
+        tapAction?(self)
+    }
     
 }
 
+class customebutton: UIButton {
+    var section:Int?
+    var row:Int?
+}
 
 
